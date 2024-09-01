@@ -12,7 +12,7 @@ import (
 var redisClient *redis.Client
 var ctx = context.Background()
 
-func main() {
+func InitializeRedisClient() {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
@@ -24,4 +24,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Redis is not connected => %v", err)
 	}
+}
+
+func GetRedisClient() *redis.Client {
+	if redisClient == nil {
+		InitializeRedisClient()
+	}
+	return redisClient
 }

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/adityjoshi/Swaasthya/Backend/database"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var jwtSecret = []byte(os.Getenv("JWTSECRET"))
