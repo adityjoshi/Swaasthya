@@ -18,7 +18,7 @@ func InitDatabase() {
 	}
 
 	// Migrate the schema
-	DB.AutoMigrate()
+	DB.AutoMigrate(&Users{})
 }
 
 var DB *gorm.DB
@@ -38,11 +38,21 @@ const (
 )
 
 type Users struct {
-	user_id       uint   `gorm:"primaryKey"`
-	full_Name     string `gorm:"not null"`
-	genderInfo    Gender
-	contactNumber uint   `gorm:"not null"`
-	email         string `gorm:"not null;unique"`
-	password      string
-	user_type     UserType
+	User_id       uint   `gorm:"primaryKey"`
+	Full_Name     string `gorm:"not null"`
+	GenderInfo    Gender
+	ContactNumber uint   `gorm:"not null"`
+	Email         string `gorm:"not null;unique"`
+	Password      string
+	User_type     UserType
+}
+
+func CloseDatabase() {
+	if DB != nil {
+		sqlDB, err := DB.DB()
+		if err != nil {
+			return
+		}
+		sqlDB.Close()
+	}
 }
