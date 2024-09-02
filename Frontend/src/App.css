@@ -1,0 +1,85 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.accordion-container {
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid #ddd; 
+  border-radius: 8px; 
+  background-color: #f9f9f9; 
+}
+
+.carousel-item {
+  position: relative;
+}
+
+.carousel-caption {
+  position: absolute;
+  bottom: 60px; 
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgb(26, 25, 25);
+  background-color: rgba(247, 243, 243, 0.5);
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: xx-large;
+}
+
+.auth-wrapper {
+  margin-top: 70px; 
+}
+
+.auth-inner {
+  padding: 20px;
+}
+
+
+.App {
+  min-height: 100vh; 
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-wrapper {
+  flex: 1;
+}
+.navbar {
+  height: 60px; 
+}
