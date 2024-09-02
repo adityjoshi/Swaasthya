@@ -33,6 +33,7 @@ func main() {
 	router.Use(sessions.Sessions("session", store))
 
 	routes.UserRoutes(router)
+	routes.UserInfoRoutes(router)
 
 	server := &http.Server{
 		Addr:    ":2426",

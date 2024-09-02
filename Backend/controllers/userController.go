@@ -132,7 +132,7 @@ func VerifyOTP(c *gin.Context) {
 	}
 
 	// Generate JWT token
-	jwtToken, err := utils.GenerateJwt(int(user.User_id), user.User_type)
+	jwtToken, err := utils.GenerateJwt(int(user.User_id), string(user.User_type))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT token"})
 		return

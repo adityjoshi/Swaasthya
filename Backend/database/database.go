@@ -18,7 +18,7 @@ func InitDatabase() {
 	}
 
 	// Migrate the schema
-	DB.AutoMigrate(&Users{})
+	DB.AutoMigrate(&Users{}, &PatientInfo{})
 }
 
 var DB *gorm.DB
@@ -45,6 +45,15 @@ type Users struct {
 	Email         string `gorm:"not null;unique"`
 	Password      string
 	User_type     UserType
+}
+
+type PatientInfo struct {
+	Username  string `gorm:"not null"`
+	City      string
+	State     string
+	PinCode   uint
+	Adhar     string
+	PatientID uint `gorm:"primaryKey;foreignKey:PatientID;references:Users(User_id);onDelete:CASCADE"`
 }
 
 func CloseDatabase() {

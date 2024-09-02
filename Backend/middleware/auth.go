@@ -23,7 +23,7 @@ func AuthUser() gin.HandlerFunc {
 		}
 		User_type, ok := claims["user"].(map[string]interface{})["type"].(string)
 		if !ok || User_type != "Patient" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized for warden"})
+			c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized for warden", "token": User_type})
 			c.Abort()
 			return
 		}
