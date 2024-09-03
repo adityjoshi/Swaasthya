@@ -34,6 +34,7 @@ func main() {
 
 	routes.UserRoutes(router)
 	routes.UserInfoRoutes(router)
+	routes.HospitalAdmin(router)
 
 	server := &http.Server{
 		Addr:    ":2426",

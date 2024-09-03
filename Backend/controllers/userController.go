@@ -81,7 +81,7 @@ func Login(c *gin.Context) {
 
 	// Retrieve user from database
 	var user database.Users
-	if err := database.DB.Where("email = ? AND contact_number = ?", loginRequest.Email, loginRequest.ContactNumber).First(&user).Error; err != nil {
+	if err := database.DB.Where("email = ? OR contact_number = ?", loginRequest.Email, loginRequest.ContactNumber).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
@@ -99,8 +99,14 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	token, err := utils.GenerateJwt(user.User_id, "Patient")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
 	// Respond with message to enter OTP
-	c.JSON(http.StatusOK, gin.H{"message": "OTP sent to email. Please verify the OTP."})
+	c.JSON(http.StatusOK, gin.H{"message": "OTP sent to email. Please verify the OTP.", "token": token})
 }
 
 func VerifyOTP(c *gin.Context) {
@@ -131,12 +137,12 @@ func VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	// Generate JWT token
-	jwtToken, err := utils.GenerateJwt(int(user.User_id), string(user.User_type))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT token"})
-		return
-	}
+	// // Generate JWT token
+	// jwtToken, err := utils.GenerateJwt(int(user.User_id), string(user.User_type))
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT token"})
+	// 	return
+	// }
 
-	c.JSON(http.StatusOK, gin.H{"loggedin": "success", "jwttoken": jwtToken, "userType": user.User_type})
+	c.JSON(http.StatusOK, gin.H{"loggedin": "success", "jwttoken": "jwtToken", "userType": user.User_type})
 }
