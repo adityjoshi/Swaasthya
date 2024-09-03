@@ -29,7 +29,7 @@ const OtpLogin = ({ onLogin }) => {
 
     const handleOTPVerification = () => {
         const enteredOTP = otp.join('');
-        if (/^\d{4}$/.test(enteredOTP)) {
+        if (/^\d{6}$/.test(enteredOTP)) {
             const username = email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
             onLogin(username);
         } else {
@@ -70,13 +70,13 @@ const OtpLogin = ({ onLogin }) => {
                         <OTPInput
                             value={otp.join('')}
                             onChange={(value) => setOtp(value.split(''))}
-                            numInputs={4}
+                            numInputs={6}
                             isInputNum
                             inputStyle={{
-                                width: '4rem',
-                                height: '4rem',
-                                margin: '0 0.5rem',
-                                fontSize: '2rem',
+                                width: '3.52rem',
+                                height: '3.5rem',
+                                margin: '0 0.3rem',
+                                fontSize: '1rem',
                                 borderRadius: '8px',
                                 border: '2px solid #ced4da'
                             }}

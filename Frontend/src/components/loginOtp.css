@@ -7,7 +7,7 @@
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
+    max-width: 600px;/*chnge from 400 to 600*/ 
     margin: auto;
 }
 
@@ -52,7 +52,21 @@
 
 .otp-input-container {
     margin: 1rem 0;
+    /* added */
+    display: flex;
+    justify-content: center; /*added*/
+    gap: 0.5rem; /* added */
 }
+/* new */
+.otp-input-container input {
+    width: 3rem; /* chnged */
+    height: 3rem;
+    font-size: 1.5rem;
+    text-align: center; 
+    border-radius: 8px;
+    border: 2px solid #ced4da;
+}
+
 
 .welcome-container {
     text-align: center;
