@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/adityjoshi/Swaasthya/Backend/database"
@@ -99,14 +100,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateJwt(user.User_id, "Patient")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-		return
-	}
-
 	// Respond with message to enter OTP
-	c.JSON(http.StatusOK, gin.H{"message": "OTP sent to email. Please verify the OTP.", "token": token})
+	c.JSON(http.StatusOK, gin.H{"message": "OTP sent to email. Please verify the OTP."})
 }
 
 func VerifyOTP(c *gin.Context) {
@@ -137,12 +132,18 @@ func VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	// // Generate JWT token
-	// jwtToken, err := utils.GenerateJwt(int(user.User_id), string(user.User_type))
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT token"})
-	// 	return
-	// }
+	redisClient := database.GetRedisClient()
+	err = redisClient.Set(context.Background(), "otp_verified:"+otpRequest.Email, "true", 0).Err()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error setting OTP verification status"})
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"loggedin": "success", "jwttoken": "jwtToken", "userType": user.User_type})
+	token, err := utils.GenerateJwt(user.User_id, "Patient")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"loggedin": "success", "jwttoken": token, "userType": user.User_type})
 }
