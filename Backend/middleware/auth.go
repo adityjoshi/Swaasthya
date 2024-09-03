@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/adityjoshi/Swaasthya/Backend/utils"
 	"github.com/gin-gonic/gin"
@@ -17,11 +16,6 @@ func AuthRequired(userType string) gin.HandlerFunc {
 			return
 		}
 
-		// Remove 'Bearer ' prefix if present
-		if strings.HasPrefix(tokenString, "Bearer ") {
-			tokenString = tokenString[len("Bearer "):]
-		}
-
 		claims, err := utils.DecodeJwt(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
@@ -29,17 +23,19 @@ func AuthRequired(userType string) gin.HandlerFunc {
 			return
 		}
 
-		// Check user type
-		tokenUserType, ok := claims["user_type"].(string)
-		if !ok || tokenUserType != userType {
+		if claims["user_type"] != userType {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied"})
 			c.Abort()
 			return
 		}
 
-		// Set user ID in context
 		userID, _ := claims["user_id"].(float64)
 		c.Set("user_id", uint(userID))
+
+		// Store AdminID in context if user type is Admin
+		if userType == "Admin" {
+			c.Set("admin_id", uint(userID))
+		}
 
 		c.Next()
 	}

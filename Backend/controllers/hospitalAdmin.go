@@ -117,7 +117,18 @@ func RegisterHospital(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	adminIDUint := hospital.AdminID
+	adminID, exists := c.Get("admin_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	adminIDUint, ok := adminID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid admin ID"})
+		return
+	}
+	hospital.AdminID = adminIDUint
 
 	hospital.HospitalName = strings.TrimSpace(hospital.HospitalName)
 
