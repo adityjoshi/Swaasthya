@@ -8,6 +8,7 @@
   .signup-container h3{
     font-size: 1.5rem;
     color: #52734D;
+    margin-top: 1rem;
   }
   .signup-form {
     background-color: rgba(255, 255, 255, 0.9);
