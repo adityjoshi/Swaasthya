@@ -1,0 +1,99 @@
+/* PatientDashboard.css */
+
+.patient-dashboard {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #91C788;
+    border-radius: 8px;
+    max-width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .patient-dashboard h2 {
+    color: #52734D;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .patient-details-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 30px;
+  }
+  
+  .patient-details-inline span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    color: #52734D;
+    background-color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Navigation Menu Styles */
+  .patient-navigation {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .patient-navigation ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: table;
+    border-collapse: collapse;
+  }
+  
+  .patient-navigation li {
+    display: table-cell;
+    text-align: center;
+    padding: 15px 200px;
+    border: 1px solid #52734D;
+    position: relative;
+    overflow: hidden; /* Ensure the line doesn't overflow the cell */
+  }
+  
+  .patient-navigation li:hover {
+    background-color: #91C788; /* Optional: highlight background on hover */
+  }
+  
+  .patient-navigation a {
+    text-decoration: none;
+    color: #52734D;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: color 0.3s;
+    position: relative;
+    z-index: 1; /* Ensure text is above the underline */
+  }
+  
+  .patient-navigation a:hover {
+    color: #fff;
+  }
+  
+  /* Highlight effect on hover */
+  .patient-navigation li::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px; /* Position the line just below the text */
+    width: 100%;
+    height: 2px; /* Thickness of the line */
+    background-color: #009C9C; /* Line color */
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+  
+  .patient-navigation li:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  
