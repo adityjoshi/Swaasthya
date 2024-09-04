@@ -1,0 +1,85 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 11rem;
+  }
+  .login-container h3{
+    color: #52734D;
+    font-size: 1.5rem;
+  }
+  .login-form {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border: 2px solid #52734D;
+    border-radius: 8px;
+    box-shadow: 10px 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .form-logo {
+    width: 200px !important; 
+    height: auto;
+    margin-bottom: -20px;
+  }
+  
+  .mb-3 {
+    margin-top: 1rem;
+    text-align: left; 
+  }
+  .mb-3 label {
+    color: #52734D;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+  
+  .form-control {
+    width: 100%;
+    max-width: 360px;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+  }
+  
+  .custom-control {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .custom-control-input {
+    margin-right: 0.5rem; 
+  }
+  
+  .recaptcha-container {
+    margin-top: 2rem; /* Adjust the value as needed */
+}
+
+  .submit-button {
+    padding: 0rem 1.2rem;
+    font-size: 1.1rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.3s, background-color 0.3s, color 0.3s;
+    border-radius: 20px;
+    height: 46px; /* Unified button height */
+    text-decoration: none; /* Remove hyperlink styling */
+    background-color: transparent;
+    border-color: #52734D;
+    color: #52734D !important;
+    text-decoration: none !important; 
+  }
+  
+  .submit-button:hover {
+    background-color: #52734D;
+    color: #FEFFDE !important;
+    transform: scale(1.05);   
+    text-decoration: none;
+  }
+  
+  .forgot-password {
+    margin-top: 1rem;
+    text-align: right;
+  }
