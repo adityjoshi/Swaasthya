@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/adityjoshi/Swaasthya/Backend/database"
@@ -16,6 +17,9 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Debugging output
+	fmt.Printf("Received user data: %+v\n", newUser)
 
 	// Check if user already exists
 	var existingUser database.Users
@@ -82,7 +86,7 @@ func Login(c *gin.Context) {
 
 	// Retrieve user from database
 	var user database.Users
-	if err := database.DB.Where("email = ? OR contact_number = ?", loginRequest.Email, loginRequest.ContactNumber).First(&user).Error; err != nil {
+	if err := database.DB.Where("email = ? ", loginRequest.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}

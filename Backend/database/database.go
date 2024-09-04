@@ -40,13 +40,13 @@ const (
 )
 
 type Users struct {
-	User_id       uint   `gorm:"primaryKey"`
-	Full_Name     string `gorm:"not null"`
-	GenderInfo    Gender
-	ContactNumber uint   `gorm:"not null"`
-	Email         string `gorm:"not null;unique"`
-	Password      string
-	User_type     UserType
+	User_id       uint     `gorm:"primaryKey"`
+	Full_Name     string   `json:"Full_Name" gorm:"not null"`
+	GenderInfo    Gender   `json:"GenderInfo"`
+	ContactNumber string   `json:"ContactNumber" gorm:"not null"`
+	Email         string   `json:"Email" gorm:"not null;unique"`
+	Password      string   `json:"Password"`
+	User_type     UserType `json:"User_type"`
 }
 
 type PatientInfo struct {
