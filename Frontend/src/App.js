@@ -10,7 +10,7 @@ import StaffForm from './components/staff';
 import Hospital_Login from './pages/Hospital_Login';
 import Hospital_SignUp from './pages/Hospital_Signup';
 import Patient_Dashboard from './pages/PatientDashboard';
-import OtpLogin from './components/loginOtp'; 
+import OtpLogin from './pages/loginOtp'; 
 
 function App() {
   return (
