@@ -68,12 +68,6 @@ func AdminLogin(c *gin.Context) {
 		return
 	}
 
-	// token, err := utils.GenerateJwt(int(admin.AdminID), "Admin")
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-	// 	return
-	// }
-
 	token, err := utils.GenerateJwt(admin.AdminID, "Admin")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
@@ -172,7 +166,6 @@ func GetHospital(c *gin.Context) {
 
 	c.JSON(http.StatusOK, hospital)
 }
-
 func RegisterStaff(c *gin.Context) {
 	var staff database.HospitalStaff
 	if err := c.BindJSON(&staff); err != nil {
@@ -193,27 +186,36 @@ func RegisterStaff(c *gin.Context) {
 		return
 	}
 
-	// Check if the admin is authorized to register staff for this hospital
+	// Verify admin's hospital authorization
 	hospitalID, err := verifyAdminHospital(adminIDUint)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Admin not authorized to register staff"})
 		return
 	}
 
-	// Set the HospitalID for the new staff
 	staff.HospitalID = hospitalID
 
-	// Retrieve hospital details to get the hospital name
+	// Retrieve hospital details
 	var hospital database.Hospitals
 	if err := database.DB.Where("hospital_id = ?", hospitalID).First(&hospital).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve hospital details"})
 		return
 	}
-
-	// Set the hospital name in the staff record
 	staff.HospitalName = hospital.HospitalName
 
-	// Generate the staff username in the format "hospitalID+staffname"
+	// Generate a password based on staff's full name and hospital username
+	password := generatePassword(staff.FullName, hospital.Username)
+	staff.Password = password
+
+	// Hash the staff password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(staff.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+	staff.Password = string(hashedPassword)
+
+	// Generate a unique username for the staff
 	staff.Username = fmt.Sprintf("%d%s", hospital.HospitalId, strings.ReplaceAll(strings.ToLower(staff.FullName), " ", ""))
 
 	// Save the new staff entry
@@ -223,12 +225,17 @@ func RegisterStaff(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message":       "Staff created successfully",
-		"staff_id":      staff.StaffID,
-		"username":      staff.Username,
-		"hospital_id":   staff.HospitalID,
-		"hospital_name": staff.HospitalName,
+		"message":     "Staff created successfully",
+		"staff_id":    staff.StaffID,
+		"username":    staff.Username,
+		"hospital_id": staff.HospitalID,
+		"password":    staff.Password, // Optionally return the generated password
 	})
+}
+
+func generatePassword(fullName string, hospitalUsername string) string {
+	cleanedName := strings.ReplaceAll(strings.ToLower(fullName), " ", "")
+	return fmt.Sprintf("%s%s", cleanedName, hospitalUsername)
 }
 
 func AddBedType(c *gin.Context) {

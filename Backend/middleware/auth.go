@@ -39,7 +39,9 @@ func AuthRequired(userType string) gin.HandlerFunc {
 		if userType == "Admin" {
 			c.Set("admin_id", uint(userID))
 		}
-
+		if userType == "Staff" {
+			c.Set("staff_id", uint(userID))
+		}
 		c.Next()
 	}
 }

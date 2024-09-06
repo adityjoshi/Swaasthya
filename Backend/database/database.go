@@ -19,7 +19,7 @@ func InitDatabase() {
 	}
 
 	// Migrate the schema
-	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{}, &BedsCount{})
+	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{}, &BedsCount{}, &Patients{})
 }
 
 var DB *gorm.DB
@@ -56,6 +56,20 @@ type PatientInfo struct {
 	PinCode   uint
 	Adhar     string
 	PatientID uint `gorm:"primaryKey;foreignKey:PatientID;references:Users(User_id);onDelete:CASCADE"`
+}
+
+type Patients struct {
+	PatientID     uint   `json:"patient_id" gorm:"primaryKey;autoIncrement"`
+	FullName      string `json:"full_name" gorm:"not null"`
+	ContactNumber string `json:"contact_number" gorm:"not null"`
+	Email         string `json:"email" gorm:"not null;unique"`
+	Address       string `json:"address"`
+	City          string `json:"city"`
+	State         string `json:"state"`
+	PinCode       string `json:"pin_code"`
+	Gender        string `json:"gender"`
+	Adhar         string `json:"adhar"`
+	HospitalID    uint   `json:"hospital_id" gorm:"not null;foreignKey:HospitalID;references:Hospitals(HospitalId)"`
 }
 
 type HospitalAdmin struct {
@@ -122,6 +136,7 @@ type HospitalStaff struct {
 	HospitalID    uint     `json:"hospital_id" gorm:"not null;foreignKey:HospitalID;references:Hospitals(HospitalId)"`
 	HospitalName  string   `gorm:"not null "`
 	Username      string   `json:"username" gorm:"unique;not null"`
+	Password      string   `json:"password" gorm:"not null"`
 }
 type BedsType string
 
