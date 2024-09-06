@@ -231,6 +231,181 @@ func RegisterStaff(c *gin.Context) {
 	})
 }
 
+func AddBedType(c *gin.Context) {
+	var bedsCount database.BedsCount
+
+	// Parse the JSON request body into the bedsCount struct
+	if err := c.BindJSON(&bedsCount); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get admin ID from JWT
+	adminID, exists := c.Get("admin_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	adminIDUint, ok := adminID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid admin ID"})
+		return
+	}
+
+	// Verify the admin's hospital
+	hospitalID, err := verifyAdminHospital(adminIDUint)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin not authorized to add beds for this hospital"})
+		return
+	}
+
+	// Set the hospital ID to the bedsCount object
+	bedsCount.HospitalID = hospitalID
+
+	// Check if the bed type already exists for the hospital
+	var existingBedType database.BedsCount
+	if err := database.DB.Where("hospital_id = ? AND type_name = ?", hospitalID, bedsCount.TypeName).First(&existingBedType).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Bed type already exists for this hospital"})
+		return
+	}
+
+	// Save the new bed type and total beds
+	if err := database.DB.Create(&bedsCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add bed type"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message":     "Bed type added successfully",
+		"bed_type_id": bedsCount.ID,
+		"type_name":   bedsCount.TypeName,
+		"total_beds":  bedsCount.TotalBeds,
+		"hospital_id": bedsCount.HospitalID,
+	})
+}
+
+func UpdateTotalBeds(c *gin.Context) {
+	var bedData struct {
+		TypeName  string `json:"type_name"`
+		TotalBeds int    `json:"total_beds"` // Number of beds to add or remove
+		Action    string `json:"action"`     // Action: "add" or "remove"
+	}
+
+	// Parse the JSON request body into the bedData struct
+	if err := c.BindJSON(&bedData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get admin ID from JWT
+	adminID, exists := c.Get("admin_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	adminIDUint, ok := adminID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid admin ID"})
+		return
+	}
+
+	// Verify the admin's hospital
+	hospitalID, err := verifyAdminHospital(adminIDUint)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin not authorized to update beds for this hospital"})
+		return
+	}
+
+	// Find the bed type for the given hospital
+	var bedType database.BedsCount
+	if err := database.DB.Where("hospital_id = ? AND type_name = ?", hospitalID, bedData.TypeName).First(&bedType).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Bed type not found for this hospital"})
+		return
+	}
+
+	// Perform the add or remove action
+	switch bedData.Action {
+	case "add":
+		// Add beds
+		bedType.TotalBeds += uint(bedData.TotalBeds)
+
+	case "remove":
+		// Remove beds (ensure total beds don't go below zero)
+		if int(bedType.TotalBeds)-bedData.TotalBeds < 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot remove more beds than available"})
+			return
+		}
+		bedType.TotalBeds -= uint(bedData.TotalBeds)
+
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid action. Use 'add' or 'remove'"})
+		return
+	}
+
+	// Save the updated bed count
+	if err := database.DB.Save(&bedType).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update bed count"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "Total beds updated successfully",
+		"type_name":  bedType.TypeName,
+		"total_beds": bedType.TotalBeds,
+	})
+}
+
+func GetTotalBeds(c *gin.Context) {
+	// Get admin ID from JWT
+	adminID, exists := c.Get("admin_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	adminIDUint, ok := adminID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid admin ID"})
+		return
+	}
+
+	// Verify the admin's hospital
+	hospitalID, err := verifyAdminHospital(adminIDUint)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin not authorized to view beds for this hospital"})
+		return
+	}
+
+	// Query the BedsCount for the given hospital
+	var beds []database.BedsCount
+	if err := database.DB.Where("hospital_id = ?", hospitalID).Find(&beds).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve bed information"})
+		return
+	}
+
+	// If no beds are found for the hospital
+	if len(beds) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "No bed data found for this hospital"})
+		return
+	}
+
+	// Create a response that lists all the bed types with their total, available, and occupied counts
+	var bedDetails []gin.H
+	for _, bed := range beds {
+		bedDetails = append(bedDetails, gin.H{
+			"type_name":  bed.TypeName,
+			"total_beds": bed.TotalBeds,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"hospital_id": hospitalID,
+		"bed_details": bedDetails,
+	})
+}
+
 func verifyAdminHospital(adminID uint) (uint, error) {
 	var admin database.HospitalAdmin
 	if err := database.DB.Where("admin_id = ?", adminID).First(&admin).Error; err != nil {

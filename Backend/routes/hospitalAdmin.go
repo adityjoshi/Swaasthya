@@ -27,5 +27,8 @@ func HospitalAdmin(incomingRoutes *gin.Engine) {
 		adminRoutes.GET("/getdoctor/:id", middleware.OtpAuthRequireed, controllers.GetDoctor)
 		adminRoutes.POST("/bookAppointment", middleware.OtpAuthRequireed, controllers.CreateAppointment)
 		adminRoutes.POST("/registerStaff", middleware.OtpAuthRequireed, controllers.RegisterStaff)
+		adminRoutes.POST("/registerBeds", middleware.OtpAuthRequireed, controllers.AddBedType)
+		adminRoutes.POST("/updateBeds", middleware.OtpAuthRequireed, controllers.UpdateTotalBeds)
+		adminRoutes.GET("/getBeds", middleware.OtpAuthRequireed, controllers.GetTotalBeds)
 	}
 }

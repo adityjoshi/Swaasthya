@@ -19,7 +19,7 @@ func InitDatabase() {
 	}
 
 	// Migrate the schema
-	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{})
+	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{}, &BedsCount{})
 }
 
 var DB *gorm.DB
@@ -122,6 +122,19 @@ type HospitalStaff struct {
 	HospitalID    uint     `json:"hospital_id" gorm:"not null;foreignKey:HospitalID;references:Hospitals(HospitalId)"`
 	HospitalName  string   `gorm:"not null "`
 	Username      string   `json:"username" gorm:"unique;not null"`
+}
+type BedsType string
+
+const (
+	ICU         BedsType = "ICU"
+	GeneralWard BedsType = "GeneralWard"
+)
+
+type BedsCount struct {
+	ID         uint     `json:"id" gorm:"primaryKey;autoIncrement"`
+	TypeName   BedsType `json:"type_name" gorm:"not null;unique"` // e.g., ICU, General Ward
+	TotalBeds  uint     `json:"total_beds" gorm:"not null"`       // Total beds defined by the admin
+	HospitalID uint     `json:"hospital_id" gorm:"not null;foreignKey:HospitalID;references:Hospitals(HospitalId)"`
 }
 
 type Appointment struct {
