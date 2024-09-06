@@ -107,7 +107,7 @@ func RegisterDoctor(c *gin.Context) {
 	}
 
 	// Generate username
-	doctor.Username = generateDoctorUsername(doctor.HospitalID, hospital.HospitalName, doctor.FullName)
+	doctor.Username = generateDoctorUsername(doctor.HospitalID, doctor.FullName)
 
 	// Save doctor data
 	if err := database.DB.Create(&doctor).Error; err != nil {
@@ -119,12 +119,12 @@ func RegisterDoctor(c *gin.Context) {
 }
 
 // Helper function to generate doctor username
-func generateDoctorUsername(hospitalID uint, hospitalName, doctorFullName string) string {
+func generateDoctorUsername(hospitalID uint, doctorFullName string) string {
 	// Remove spaces from hospital name and doctor full name
-	hospitalName = strings.ReplaceAll(hospitalName, " ", "")
+
 	doctorFullName = strings.ReplaceAll(doctorFullName, " ", "")
 	// Construct username
-	return fmt.Sprintf("%d%s%s", hospitalID, hospitalName, doctorFullName)
+	return fmt.Sprintf("%d%s%s", hospitalID, doctorFullName)
 }
 
 func GetDoctor(c *gin.Context) {

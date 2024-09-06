@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/adityjoshi/Swaasthya/Backend/database"
 	"github.com/adityjoshi/Swaasthya/Backend/utils"
@@ -137,7 +138,7 @@ func VerifyOTP(c *gin.Context) {
 	}
 
 	redisClient := database.GetRedisClient()
-	err = redisClient.Set(context.Background(), "otp_verified:"+otpRequest.Email, "true", 0).Err()
+	err = redisClient.Set(context.Background(), "otp_verified:"+strconv.Itoa(int(user.User_id)), "verified", 0).Err()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error setting OTP verification status"})
 		return

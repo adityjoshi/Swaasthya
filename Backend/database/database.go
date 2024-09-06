@@ -19,7 +19,7 @@ func InitDatabase() {
 	}
 
 	// Migrate the schema
-	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{})
+	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{})
 }
 
 var DB *gorm.DB
@@ -103,6 +103,25 @@ type Doctors struct {
 	Hospital      string     `json:"hospital_name" gorm:"not null;foreignKey:Hospital;references:Hospitals(HospitalName);onDelete:CASCADE"`
 	Department    Department `json:"department" gorm:"not null"`
 	Username      string     `json:"username" gorm:"unique;not null"`
+}
+
+type Position string
+
+const (
+	Billing    Position = "Billing"
+	Compounder Position = "Compounder"
+	Reception  Position = "Reception"
+)
+
+type HospitalStaff struct {
+	StaffID       uint     `json:"staff_id" gorm:"primaryKey;autoIncrement"`
+	FullName      string   `json:"full_name" gorm:"not null"`
+	Email         string   `json:"email" gorm:"unique;not null"`
+	ContactNumber string   `json:"contact_number" gorm:"not null"`
+	Position      Position `json:"position" gorm:"not null"` // Enum-like field
+	HospitalID    uint     `json:"hospital_id" gorm:"not null;foreignKey:HospitalID;references:Hospitals(HospitalId)"`
+	HospitalName  string   `gorm:"not null "`
+	Username      string   `json:"username" gorm:"unique;not null"`
 }
 
 type Appointment struct {

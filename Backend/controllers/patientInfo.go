@@ -38,7 +38,7 @@ func AddPatientDetails(c *gin.Context) {
 	}
 
 	// Generate PatientUsername
-	patientUsername := fmt.Sprintf("%s_%d", user.Full_Name, user.ContactNumber)
+	patientUsername := fmt.Sprintf(user.Full_Name + user.ContactNumber)
 	patientInfo.Username = patientUsername
 
 	// Create patientInfo record
