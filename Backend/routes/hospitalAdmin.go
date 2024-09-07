@@ -14,7 +14,11 @@ func HospitalAdmin(incomingRoutes *gin.Engine) {
 	incomingRoutes.POST("/adminOtp", controllers.VerifyAdminOTP)
 	incomingRoutes.POST("/stafflogin", controllers.StaffLogin)
 	incomingRoutes.POST("/staffotp", controllers.VerifyStaffOTP)
-	incomingRoutes.POST("/pati", middleware.AuthRequired("Staff"), controllers.RegisterPatient)
+	incomingRoutes.POST("/pati", middleware.AuthRequired("Staff", ""), controllers.RegisterPatient)
+	incomingRoutes.POST("/admit", middleware.AuthRequired("Staff", ""), controllers.AdmitPatientForHospitalization)
+	incomingRoutes.POST("/compounder", controllers.CompounderLogin)
+	incomingRoutes.POST("/markCompounder", middleware.AuthRequired("Staff", "Compounder"), controllers.MarkPatientAsHospitalized)
+	incomingRoutes.GET("/get", middleware.AuthRequired("Staff", "Compounder"), controllers.GetRoomAssignments)
 	// incomingRoutes.POST("/registerhospital", controllers.RegisterHospital)
 	// incomingRoutes.GET("/gethospital/:id", controllers.GetHospital)
 	// incomingRoutes.POST("/doctor", controllers.RegisterDoctor)
@@ -22,7 +26,7 @@ func HospitalAdmin(incomingRoutes *gin.Engine) {
 	// incomingRoutes.POST("/bookAppointment", controllers.CreateAppointment)
 
 	adminRoutes := incomingRoutes.Group("/admin")
-	adminRoutes.Use(middleware.AuthRequired("Admin"))
+	adminRoutes.Use(middleware.AuthRequired("Admin", ""))
 	{
 		adminRoutes.POST("/registerhospital", middleware.OtpAuthRequireed, controllers.RegisterHospital)
 		adminRoutes.GET("/gethospital/:id", middleware.OtpAuthRequireed, controllers.GetHospital)

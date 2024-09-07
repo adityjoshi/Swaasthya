@@ -68,7 +68,7 @@ func AdminLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateJwt(admin.AdminID, "Admin")
+	token, err := utils.GenerateJwt(admin.AdminID, "Admin", "")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
@@ -336,7 +336,23 @@ func UpdateTotalBeds(c *gin.Context) {
 	switch bedData.Action {
 	case "add":
 		// Add beds
+		previousTotalBeds := bedType.TotalBeds
 		bedType.TotalBeds += uint(bedData.TotalBeds)
+
+		// Add rooms for the newly added beds
+		for i := previousTotalBeds + 1; i <= bedType.TotalBeds; i++ {
+			roomNumber := fmt.Sprintf("%s%d", strings.ToLower(bedData.TypeName), i)
+			newRoom := database.Room{
+				HospitalID: hospitalID,
+				BedType:    bedData.TypeName,
+				RoomNumber: roomNumber,
+				IsOccupied: false,
+			}
+			if err := database.DB.Create(&newRoom).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create rooms"})
+				return
+			}
+		}
 
 	case "remove":
 		// Remove beds (ensure total beds don't go below zero)
@@ -344,6 +360,29 @@ func UpdateTotalBeds(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot remove more beds than available"})
 			return
 		}
+
+		// Remove unoccupied rooms first
+		var unoccupiedRooms []database.Room
+		if err := database.DB.Where("hospital_id = ? AND bed_type = ? AND is_occupied = ?", hospitalID, bedData.TypeName, false).Order("room_number desc").Limit(bedData.TotalBeds).Find(&unoccupiedRooms).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find unoccupied rooms"})
+			return
+		}
+
+		// Ensure there are enough unoccupied rooms to remove
+		if len(unoccupiedRooms) < bedData.TotalBeds {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Not enough unoccupied rooms to remove"})
+			return
+		}
+
+		// Delete the unoccupied rooms
+		for _, room := range unoccupiedRooms {
+			if err := database.DB.Delete(&room).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete room"})
+				return
+			}
+		}
+
+		// Update total beds
 		bedType.TotalBeds -= uint(bedData.TotalBeds)
 
 	default:

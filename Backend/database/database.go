@@ -19,7 +19,7 @@ func InitDatabase() {
 	}
 
 	// Migrate the schema
-	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{}, &BedsCount{}, &Patients{})
+	DB.AutoMigrate(&Users{}, &PatientInfo{}, &HospitalAdmin{}, &Hospitals{}, &Doctors{}, &Appointment{}, &HospitalStaff{}, &BedsCount{}, &Patients{}, &Room{}, &PatientBeds{})
 }
 
 var DB *gorm.DB
@@ -150,6 +150,35 @@ type BedsCount struct {
 	TypeName   BedsType `json:"type_name" gorm:"not null;unique"` // e.g., ICU, General Ward
 	TotalBeds  uint     `json:"total_beds" gorm:"not null"`       // Total beds defined by the admin
 	HospitalID uint     `json:"hospital_id" gorm:"not null;foreignKey:HospitalID;references:Hospitals(HospitalId)"`
+	IsOccupied bool     `json:"is_occupied" gorm:"default:false"`
+}
+type Room struct {
+	ID         uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	HospitalID uint   `json:"hospital_id" gorm:"not null;index"`  // Hospital ID reference
+	BedType    string `json:"bed_type" gorm:"not null;index"`     // e.g., ICU, General Ward
+	RoomNumber string `json:"room_number" gorm:"not null;unique"` // Room number (e.g., icu1, icu2)
+	IsOccupied bool   `json:"is_occupied" gorm:"default:false"`   // Track if the room is occupied
+}
+
+type PatientBeds struct {
+	PatientID        uint     `json:"patient_id" gorm:"primaryKey;autoIncrement"`
+	FullName         string   `json:"full_name" gorm:"not null"`
+	ContactNumber    string   `json:"contact_number" gorm:"not null"`
+	Email            string   `json:"email" gorm:"not null;unique"`
+	Address          string   `json:"address"`
+	City             string   `json:"city"`
+	State            string   `json:"state"`
+	PinCode          string   `json:"pin_code"`
+	Gender           string   `json:"gender"`
+	Adhar            string   `json:"adhar"`
+	HospitalID       uint     `json:"hospital_id" gorm:"not null;foreignKey:HospitalID;references:Hospitals(HospitalId)"`
+	HospitalName     string   `json:"hospital_name" gorm:"not null"`     // Stores the hospital name
+	HospitalUsername string   `json:"hospital_username" gorm:"not null"` // Stores hospital username
+	DoctorName       string   `json:"doctor_name" gorm:"not null"`       // Doctor responsible for the patient
+	Hospitalized     bool     `json:"hospitalized" gorm:"default:false"` // Indicates if the patient is hospitalized
+	PaymentFlag      bool     `json:"payment_flag" gorm:"default:false"` // Indicates if payment is cleared
+	PatientBedType   BedsType `json:"patient_bed_type" gorm:"not null"`
+	PatientRoomNo    string   `json:"patient_room_no" gorm:"not null"`
 }
 
 type Appointment struct {

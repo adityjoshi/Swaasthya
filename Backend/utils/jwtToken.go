@@ -11,12 +11,13 @@ import (
 var jwtSecret = []byte(os.Getenv("JWTSECRET"))
 
 // GenerateJwt generates a JWT token with specific claims for patients or admins.
-func GenerateJwt(userID uint, userType string) (string, error) {
+func GenerateJwt(userID uint, userType, role string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 
 	claims["user_id"] = userID
 	claims["user_type"] = userType
+	claims["role"] = role
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Token expires in 24 hours
 
 	tokenString, err := token.SignedString(jwtSecret)

@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthRequired(userType string) gin.HandlerFunc {
+func AuthRequired(userType, requiredRole string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {
@@ -32,6 +32,14 @@ func AuthRequired(userType string) gin.HandlerFunc {
 			return
 		}
 
+		if userType == "Staff" {
+			role, roleExists := claims["role"].(string)
+			if !roleExists || role != requiredRole {
+				c.JSON(http.StatusForbidden, gin.H{"error": "You do not have the required role to access this resource"})
+				c.Abort()
+				return
+			}
+		}
 		userID, _ := claims["user_id"].(float64)
 		c.Set("user_id", uint(userID))
 
@@ -42,6 +50,7 @@ func AuthRequired(userType string) gin.HandlerFunc {
 		if userType == "Staff" {
 			c.Set("staff_id", uint(userID))
 		}
+
 		c.Next()
 	}
 }
