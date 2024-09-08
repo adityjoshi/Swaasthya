@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/adityjoshi/Swaasthya/Backend/controllers"
 	"github.com/adityjoshi/Swaasthya/Backend/database"
 	"github.com/adityjoshi/Swaasthya/Backend/initiliazers"
 	"github.com/adityjoshi/Swaasthya/Backend/routes"
@@ -27,6 +28,8 @@ func main() {
 	database.InitializeRedisClient()
 
 	router := gin.Default()
+	go controllers.SubscribeToPaymentUpdates()
+	go controllers.SubscribeToHospitalizationUpdates()
 	// router.Use(cors.Default())
 	router.Use(setupCORS())
 	store := cookie.NewStore([]byte("secret"))

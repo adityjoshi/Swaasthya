@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -413,6 +414,12 @@ func AdmitPatientForHospitalization(c *gin.Context) {
 		return
 	}
 
+	message := fmt.Sprintf("Patient %s with ID %d has completed the payment.", patient.FullName, patient.PatientID)
+	if err := database.RedisClient.Publish(database.Ctx, "patient_updates", message).Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to notify compounder"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message":       "Patient admitted successfully",
 		"bed_type":      reqData.BedType,
@@ -489,6 +496,14 @@ func MarkPatientAsHospitalized(c *gin.Context) {
 	patientBed.Hospitalized = true
 	if err := database.DB.Save(&patientBed).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update hospitalization status"})
+		return
+	}
+
+	// Publish event to Redis to notify other services (e.g., admin or notifications)
+	redisClient := database.GetRedisClient()
+	err := redisClient.Publish(database.Ctx, "hospitalized_updates", fmt.Sprintf("Patient %d has been hospitalized by Compounder %d", reqData.PatientID, staffID)).Err()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to publish hospitalization event"})
 		return
 	}
 
