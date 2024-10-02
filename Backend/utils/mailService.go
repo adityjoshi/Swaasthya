@@ -31,7 +31,7 @@ func OtpRegistration(to, otp string) error {
 
 	//message.Attach("/home/Alex/lolcat.jpg")
 
-	dialer := gomail.NewDialer("smtp.gmail.com", 587, "aditya3.collegeboard@gmail.com", "ehnxaubjqelkotks") // Update with your SMTP server details
+	dialer := gomail.NewDialer("smtp.gmail.com", 587, "aditya3.@gmail.com", "") // Update with your SMTP server details
 
 	// Send email
 	if err := dialer.DialAndSend(message); err != nil {
@@ -64,7 +64,7 @@ func SendAppointmentEmail(patientEmail, doctorName, appointmentDate, appointment
 	message.SetBody("text/html", htmlBody)
 
 	// Initialize SMTP dialer
-	dialer := gomail.NewDialer("smtp.gmail.com", 587, "aditya3.collegeboard@gmail.com", "ehnxaubjqelkotks") // Update with your SMTP server details
+	dialer := gomail.NewDialer("smtp.gmail.com", 587, "aditya3.@gmail.com", "") // Update with your SMTP server details
 
 	// Send email
 	if err := dialer.DialAndSend(message); err != nil {
